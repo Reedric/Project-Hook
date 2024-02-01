@@ -13,6 +13,8 @@ namespace Player
 
         private System.Action PauseAction;
 
+        private InputDevice device;
+
         public int HasPutInput = 0;
 
         [SerializeField] private UnityEvent firstInput;
@@ -27,6 +29,7 @@ namespace Player
 
             inputActions.Enable();
 
+            inputActions.Get().actionTriggered += OnAction;
             inputActions.Pause.performed += OnPause;
             #if UNITY_EDITOR
             inputActions.Debug.performed += OnDebug;
@@ -35,6 +38,7 @@ namespace Player
 
         private void OnDisable()
         {
+            inputActions.Get().actionTriggered -= OnAction;
             inputActions.Pause.performed -= OnPause;
             #if UNITY_EDITOR
             inputActions.Debug.performed -= OnDebug;
@@ -194,7 +198,15 @@ namespace Player
 
             return dirPressed || dirReleased;
         }
-        
+
+        private void OnAction(InputAction.CallbackContext ctx)
+        {
+            if (device != ctx.action.activeControl.device)
+            {
+                
+            }
+        }
+
         #if UNITY_EDITOR
         private void OnDebug(InputAction.CallbackContext ctx)
         {
