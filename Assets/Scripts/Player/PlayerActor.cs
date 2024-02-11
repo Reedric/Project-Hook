@@ -23,7 +23,7 @@ public class PlayerActor : Actor, IFilterLoggerTarget {
 
     private bool _hitWallCoroutineRunning;
     private float _hitWallPrevSpeed;
-
+    
     [Foldout("Movement Events", true)]
     public ActorEvent OnJumpFromGround;
     public ActorEvent OnDoubleJump;
@@ -86,11 +86,6 @@ public class PlayerActor : Actor, IFilterLoggerTarget {
         // return new Vector2(Mathf.MoveTowards(velocityX, targetVelocityX, accel), velocityY);
     }
 
-    public override void Land()
-    {
-        _movementStateMachine.SetGrounded(true, IsMovingUp);
-        base.Land();
-    }
     #endregion
 
     #region Jumping
@@ -187,7 +182,8 @@ public class PlayerActor : Actor, IFilterLoggerTarget {
                     BonkHead();
                 }
                 if (direction.y < 0) {
-                    Land();
+                    _movementStateMachine.SetGrounded(true, IsMovingUp);
+                    velocityY = 0;
                 }
             }
         }
