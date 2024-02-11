@@ -203,7 +203,7 @@ namespace Player
         {
             if (device != ctx.action.activeControl.device)
             {
-                
+                device = ctx.action.activeControl.device
             }
         }
 
