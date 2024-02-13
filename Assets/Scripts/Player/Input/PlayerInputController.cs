@@ -13,11 +13,19 @@ namespace Player
 
         private System.Action PauseAction;
 
-        private InputDevice device;
+        private InputMode mode;
+
+        private float inputTimer = 2.0f;
 
         public int HasPutInput = 0;
 
         [SerializeField] private UnityEvent firstInput;
+
+        private enum InputMode
+        {
+            KeyboardAndMouse,
+            Controller
+        }
 
         private void OnEnable()
         {
@@ -28,6 +36,12 @@ namespace Player
             }
 
             inputActions.Enable();
+
+            EnableDevices();
+            if (Gamepad.current != null)
+            {
+                InputSystem.DisableDevice(Gamepad.current);
+            }
 
             inputActions.Get().actionTriggered += OnAction;
             inputActions.Pause.performed += OnPause;
@@ -44,6 +58,18 @@ namespace Player
             inputActions.Debug.performed -= OnDebug;
             #endif
             inputActions.Disable();
+        }
+
+        private void Update()
+        {
+            if (inputTimer > 0.0f)
+            {
+                inputTimer -= Time.deltaTime;
+            }
+            else
+            {
+                EnableDevices();
+            }
         }
 
         public bool AnyKeyPressed()
@@ -201,9 +227,50 @@ namespace Player
 
         private void OnAction(InputAction.CallbackContext ctx)
         {
-            if (device != ctx.action.activeControl.device)
+            if (inputTimer <= 0.0f)
             {
-                device = ctx.action.activeControl.device
+                InputMode newMode = CheckMode(ctx);
+                if (!mode.Equals(newMode))
+                {
+                    mode = newMode;
+                    SwitchMode();
+                }
+            }
+            inputTimer = 3.0f;
+        }
+        
+        private void SwitchMode()
+        {
+            if (mode.Equals(InputMode.KeyboardAndMouse))
+            {
+                InputSystem.EnableDevice(Keyboard.current);
+                InputSystem.EnableDevice(Mouse.current);
+                InputSystem.DisableDevice(Gamepad.current);
+            }
+            else
+            {
+                InputSystem.EnableDevice(Gamepad.current);
+                InputSystem.DisableDevice(Keyboard.current);
+                InputSystem.DisableDevice(Mouse.current);
+            }
+        }
+
+        private InputMode CheckMode(InputAction.CallbackContext ctx)
+        {
+            if (ctx.action.activeControl.device.name.Equals("Keyboard") || ctx.action.activeControl.device.name.Equals("Mouse"))
+            {
+                return InputMode.KeyboardAndMouse;
+            }
+            return InputMode.Controller;
+        }
+
+        private void EnableDevices()
+        {
+            InputSystem.EnableDevice(Keyboard.current);
+            InputSystem.EnableDevice(Mouse.current);
+            if (Gamepad.current != null)
+            {
+                InputSystem.EnableDevice(Gamepad.current);
             }
         }
 
