@@ -66,9 +66,10 @@ namespace Player
             {
                 inputTimer -= Time.deltaTime;
             }
-            else
+            else if (inputTimer != -1.0f)
             {
                 EnableDevices();
+                inputTimer = -1.0f;
             }
         }
 
